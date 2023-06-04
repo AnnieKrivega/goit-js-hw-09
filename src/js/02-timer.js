@@ -71,9 +71,4 @@ function convertMs(ms) {
     const seconds = addLeadingZero(Math.floor((((ms % day) % hour) % minute) / second));
     return { days, hours, minutes, seconds };
 }
-const updateTime = () => {
-    if (timeRemained <= 0) {
-    clearInterval(timer);
-    Notiflix.Notify.success('Countdown finished!');
-    return;
-    }}
+
