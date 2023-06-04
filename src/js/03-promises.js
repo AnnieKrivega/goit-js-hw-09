@@ -1,70 +1,58 @@
-// function createPromise(position, delay) {
-//   const shouldResolve = Math.random() > 0.3;
-//   if (shouldResolve) {
-//     // Fulfill
-//   } else {
-//     // Reject
-//   }
-// }
-import Notiflix from 'notiflix';
+import { Notify } from 'notiflix';
 
-const form = document.querySelector('.form');
-
-form.addEventListener('submit', onSubmit);
-
-function onSubmit(event){
-  event.preventDefault();
-
-  const delay = parseInt(form.elements.delay.value);
-  const step = parseInt(form.elements.step.value);
-  const amount = parseInt(form.elements.amount.value);
-
+const refs = {
+  button: document.querySelector('button'),
+  form: document.querySelector('form'),
+  delayInput: document.querySelector('input[name="delay"]'),
+  stepInput: document.querySelector('input[name="step"]'),
+  amountInput: document.querySelector('input[name="amount"]'),
 }
 
 function createPromise(position, delay) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const shouldResolve = Math.random() > 0.3;
+  const shouldResolve = Math.random() > 0.3;
+  
+  return new Promise ((res, rej) => {
+    setTimeout (() => {
       if (shouldResolve) {
-        resolve({ position, delay });
+        res({ position, delay })
       } else {
-        reject({ position, delay });
+        rej({ position, delay })
       }
-    }, delay);
+    }, delay)
   })
-    .then(({ position, delay }) => {
-      Notiflix.Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
-    })
-    .catch(({ position, delay }) => {
-      Notiflix.Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
-    });
-}
-const validateInput = event => {
-  const target = event.target;
-  const inputValue = parseInt(target.value);
-
-  if ((target.name === 'step' || target.name === 'delay') && inputValue < 0) {
-    Notiflix.Notify.failure(
-      `❌ You cannot enter negative values in this field`
-    );
-    target.value = 0;
-  } else if (target.getAttribute('name') === 'amount' && inputValue <= 0) {
-    Notiflix.Notify.failure(
-      '❌ Only positive values can be entered in this field'
-    );
-    target.value = 1;
-  }
 };
-const promiseGenerator = event => {
-  event.preventDefault();
-  const firstDelay = parseInt(delayInput.value);
-  const step = parseInt(stepInput.value);
-  const amount = parseInt(amountInput.value);
 
-  for (let i = 0; i < amount; i++) {
-    const position = i;
-    const delay = firstDelay + (i - 1) * step;
+refs.form.addEventListener('submit', onSubmit);
 
-    createPromise(position, delay);
-  }
+function onSubmit(evt) {
+  evt.preventDefault();
+
+  const delay = Number(refs.delayInput.value);
+  const step = Number(refs.stepInput.value);
+  const amount = Number(refs.amountInput.value);
+  // console.log(delay, step, amount)
+
+
+  if(delay < 0 || step < 0 || amount < 0) {
+    Notify.warning(
+      `Enter number more than 0`
+    );
+  } 
+  
+  else if(Number(amount) === 0) {
+    Notify.warning(`Enter number more than 0`);
+  } 
+  
+  else{
+    for (let i = 0; i < amount; i++) {
+      createPromise(i, delay + step * i)
+        .then(({ position, delay }) => {
+          Notify.success(`✅ Fulfilled promise ${position + 1} in ${delay}ms`);
+        })
+        .catch(({ position, delay }) => {
+          Notify.failure(`❌ Rejected promise ${position + 1} in ${delay}ms`);
+        });
+    }
+  };
+
 };
